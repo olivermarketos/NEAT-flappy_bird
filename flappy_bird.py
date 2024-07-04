@@ -46,11 +46,11 @@ class Bird:
             displacement = 16
 
         if displacement <0: #fine tunes jump 
-            d -= 2
+            displacement -= 2
 
         self.y = self.y + displacement
 
-        if d < 0  or self.y < self.y +50: # tilt up
+        if displacement < 0  or self.y < self.y +50: # tilt up
             if self.tilt < self.MAX_ROTATION:
                 self.tilt = self.MAX_ROTATION
         
@@ -95,11 +95,15 @@ def draw_window(win, bird):
 def main():
     bird = Bird(50, 300)
     win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+    clock = pygame.time.Clock()
     run  = True
     while run:
+        clock.tick(30) # sets 30 frames per second
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+
+        bird.move()
         draw_window(win, bird)
     pygame.quit()
     quit()
