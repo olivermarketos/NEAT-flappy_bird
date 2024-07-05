@@ -89,6 +89,10 @@ class Bird:
 
     def get_mask(self):
         return pygame.mask.from_surface(self.img)
+    
+    def reset(self):
+        self.x = 230
+        self.y = 350
 
 class Pipe:
     GAP = 200
@@ -156,7 +160,19 @@ class Base:
     def draw(self, win):
         win.blit(self.IMG, (self.x1, self.y))
         win.blit(self.IMG, (self.x2, self.y))
-        
+
+class Score:
+    def __init__(self) -> None:
+        self.score = 0
+
+    def update_score(self):
+        self.score += 1
+
+    def get_score(self):
+        return self.score
+    
+    def reset_score(self):
+        self.score = 0
 
 def draw_window(win, bird, pipes, base, score):
     
@@ -168,16 +184,21 @@ def draw_window(win, bird, pipes, base, score):
     base.draw(win)
    
     bird.draw(win)
-    text = STAT_FONT.render("Score: "+str(score),1,(255,255,255))
+    text = STAT_FONT.render("Score: "+str(score.get_score()),1,(255,255,255))
     # win.blit(text, (WIN_WIDTH - 10 - text.get_width(), 10))
     win.blit(text, (10, 10))
     pygame.display.update()
+
+def reset_game(bird, pipes, score):
+    bird.reset()
+    score.reset_score()
+    pipes = [Pipe(600)]
 
 def main():
     bird = Bird(230, 350)
     base = Base(730)
     pipes = [Pipe(600)]
-    score = 0
+    score = Score()
 
     win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     clock = pygame.time.Clock()
@@ -213,8 +234,11 @@ def main():
                     quit()
 
                 if pipe.collide(bird):
-                    pygame.quit()
-                    quit()
+                    # pygame.quit()
+                    # quit()
+                    reset_game(bird, pipes, score)
+                
+                    started = False
                     pass
 
                 if pipe.x + pipe.PIPE_TOP.get_width() < 0:
@@ -228,7 +252,7 @@ def main():
 
 
             if add_pipe:
-                score +=1 
+                score.update_score()
                 pipes.append(Pipe(700))
 
             for r in rem:
