@@ -21,7 +21,7 @@ class Bird:
     IMGS = BIRD_IMGS
     MAX_ROTATION = 25
     ROTATION_VELOCITY = 20
-    ANIMATION_TIME = 5 # how long we show each bird animation
+    ANIMATION_TIME = 1 # how long we show each bird animation
 
     def __init__(self, x,y):
         self.x =x # starting posistion of bird
@@ -110,7 +110,8 @@ class Pipe:
         self.set_height()
 
     def set_height(self):
-        self.height = random.randrange(50,450)
+        self.height = 250
+        # self.height = random.randrange(50,450)
         self.top = self.height - self.PIPE_TOP.get_height()
         self.bottom = self.height + self.GAP
 
@@ -203,7 +204,7 @@ def main():
     win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     clock = pygame.time.Clock()
     run  = True
-    started = False
+    
     
     while run:
         
@@ -216,48 +217,45 @@ def main():
             keys = pygame.key.get_pressed()
             if keys[pygame.K_SPACE]:
                 bird.jump()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    if not started:
-                        started = True
+        
 
         base.move()
-        if started:
-            bird.move()
+    
+        # bird.move()
+        
+        add_pipe = False
+        rem = []
+        for pipe in pipes:
+
+            if bird.y + bird.img.get_height() >= 730 or bird.y < 0: # if bird hits floor
+                pygame.quit()
+                quit()
+
+            if pipe.collide(bird):
+                # pygame.quit()
+                # quit()
+                reset_game(bird, pipes, score)
             
-            add_pipe = False
-            rem = []
-            for pipe in pipes:
+                started = False
+                pass
 
-                if bird.y + bird.img.get_height() >= 730 or bird.y < 0: # if bird hits floor
-                    pygame.quit()
-                    quit()
+            if pipe.x + pipe.PIPE_TOP.get_width() < 0:
+                rem.append(pipe)
 
-                if pipe.collide(bird):
-                    # pygame.quit()
-                    # quit()
-                    reset_game(bird, pipes, score)
-                
-                    started = False
-                    pass
-
-                if pipe.x + pipe.PIPE_TOP.get_width() < 0:
-                    rem.append(pipe)
-
-                if not pipe.passed and pipe.x < bird.x:
-                    pipe.passed = True
-                    add_pipe = True
-                
-                pipe.move()
-
-
-            if add_pipe:
-                score.update_score()
-                pipes.append(Pipe(700))
-
-            for r in rem:
-                pipes.remove(r)   
+            if not pipe.passed and pipe.x < bird.x:
+                pipe.passed = True
+                add_pipe = True
             
+            pipe.move()
+
+
+        if add_pipe:
+            score.update_score()
+            pipes.append(Pipe(700))
+
+        for r in rem:
+            pipes.remove(r)   
+        
 
         draw_window(win, bird, pipes, base, score)
     pygame.quit()
